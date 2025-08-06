@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
 export const Register = () => {
@@ -23,8 +24,18 @@ export const Register = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="bg-primary/10">
-          <CardTitle className="text-center text-2xl">Register for the Hackathon</CardTitle>
+        <CardHeader className="bg-primary/10 flex items-center justify-between">
+          <CardTitle className="text-center text-2xl">
+            Register for the Hackathon
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="ml-2"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4 py-6">
           <form onSubmit={handleSubmit} className="space-y-4">
