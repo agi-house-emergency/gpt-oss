@@ -33,8 +33,8 @@ export const HackathonHero = () => {
         </svg>
       </div>
 
-      {/* Logo */}
-      <img src={logo} alt="Hackathon Logo" className="relative h-16 w-auto mb-4" />
+      {/* Logo - increased size */}
+      <img src={logo} alt="Hackathon Logo" className="relative h-80 w-auto mb-4" />
 
       <h1 className="relative text-5xl font-extrabold tracking-tight text-primary mb-4">
         AGI House Emergency Hackathon
