@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.jpg";
 
 export const HackathonHero = () => {
   return (
@@ -31,6 +32,9 @@ export const HackathonHero = () => {
           </defs>
         </svg>
       </div>
+
+      {/* Logo */}
+      <img src={logo} alt="Hackathon Logo" className="relative h-16 w-auto mb-4" />
 
       <h1 className="relative text-5xl font-extrabold tracking-tight text-primary mb-4">
         AGI House Emergency Hackathon
