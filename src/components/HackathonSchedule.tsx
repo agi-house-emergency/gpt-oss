@@ -5,39 +5,44 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const events = [
   {
-    time: "09:00 AM",
-    title: "Opening Remarks",
-    description: "Welcome, agenda, and rules.",
+    time: "6:00 PM",
+    title: "Arrival, Announcements",
+    description: "",
   },
   {
-    time: "10:00 AM",
-    title: "Team Formation",
-    description: "Find teammates and define your project scope.",
+    time: "6:20 PM",
+    title: "OpenAI's Dmitry Pimenov on gpt‑oss",
+    description: "",
   },
   {
-    time: "12:00 PM",
-    title: "Lunch Break",
-    description: "Free food and networking.",
+    time: "6:30 PM",
+    title: "Groq on lightning‑fast gpt‑oss inference",
+    description: "",
   },
   {
-    time: "02:00 PM",
-    title: "Mid‑Hack Check‑in",
-    description: "Progress updates and mentor Q&A.",
+    time: "6:45 PM",
+    title: "Code up gpt‑oss apps",
+    description: "",
   },
   {
-    time: "06:00 PM",
-    title: "Dinner & Demo Prep",
-    description: "Final touches before presentations.",
+    time: "7:30 PM",
+    title: "Dinner",
+    description: "",
   },
   {
-    time: "08:00 PM",
-    title: "Final Presentations",
-    description: "Showcase your solution to the judges.",
+    time: "10:00 PM",
+    title: "Demos!!",
+    description: "",
   },
   {
-    time: "09:30 PM",
-    title: "Awards & Closing",
-    description: "Prizes, feedback, and next steps.",
+    time: "10:50 PM",
+    title: "Judging & Award Announcements",
+    description: "",
+  },
+  {
+    time: "11:00 PM",
+    title: "Adjourn",
+    description: "",
   },
 ];
 
@@ -60,7 +65,9 @@ export const HackathonSchedule = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">{ev.title}</h3>
-                  <p className="text-sm text-foreground/70">{ev.description}</p>
+                  {ev.description && (
+                    <p className="text-sm text-foreground/70">{ev.description}</p>
+                  )}
                 </div>
               </div>
             ))}
