@@ -36,42 +36,37 @@ function randomFood(snake: Point[]): Point {
 
 export const SnakeGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const snakeRef = useRef<Point[]>(INITIAL_SNAKE); // always holds latest snake
+  const intervalRef = useRef<number | null>(null);
 
   const [snake, setSnake] = useState<Point[]>(INITIAL_SNAKE);
   const [food, setFood] = useState<Point>(() => randomFood(INITIAL_SNAKE));
   const [dir, setDir] = useState<Direction>(Direction.Right);
   const [gameOver, setGameOver] = useState(false);
 
-  // keep the mutable ref in sync with state
-  useEffect(() => {
-    snakeRef.current = snake;
-  }, [snake]);
+  // Keep direction within bounds (prevent reverse)
+  const handleKey = (e: KeyboardEvent) => {
+    setDir((prev) => {
+      switch (e.key) {
+        case "ArrowUp":
+          return prev !== Direction.Down ? Direction.Up : prev;
+        case "ArrowDown":
+          return prev !== Direction.Up ? Direction.Down : prev;
+        case "ArrowLeft":
+          return prev !== Direction.Right ? Direction.Left : prev;
+        case "ArrowRight":
+          return prev !== Direction.Left ? Direction.Right : prev;
+        default:
+          return prev;
+      }
+    });
+  };
 
-  // Arrow‑key handling
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      setDir((prev) => {
-        switch (e.key) {
-          case "ArrowUp":
-            return prev !== Direction.Down ? Direction.Up : prev;
-          case "ArrowDown":
-            return prev !== Direction.Up ? Direction.Down : prev;
-          case "ArrowLeft":
-            return prev !== Direction.Right ? Direction.Left : prev;
-          case "ArrowRight":
-            return prev !== Direction.Left ? Direction.Right : prev;
-          default:
-            return prev;
-        }
-      });
-    };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Main game loop – runs only while not game over
+  // Main game loop
   useEffect(() => {
     if (gameOver) return;
 
@@ -79,6 +74,7 @@ export const SnakeGame = () => {
       setSnake((prev) => {
         const head = prev[0];
         const newHead: Point = { ...head };
+
         switch (dir) {
           case Direction.Up:
             newHead.y -= 1;
@@ -105,27 +101,32 @@ export const SnakeGame = () => {
           return prev;
         }
 
-        // Self collision (ignore the tail that will move away)
-        const willCollide = snakeRef.current.some(
+        // Build tentative new snake (head + previous body)
+        const newSnake = [newHead, ...prev];
+
+        // Check if we ate food
+        const ateFood = newHead.x === food.x && newHead.y === food.y;
+
+        // If not eating, remove tail
+        if (!ateFood) newSnake.pop();
+
+        // Self‑collision: does head intersect any other segment?
+        const collision = newSnake.slice(1).some(
           (seg) => seg.x === newHead.x && seg.y === newHead.y,
         );
-        if (willCollide) {
+        if (collision) {
           setGameOver(true);
           return prev;
         }
 
-        const newSnake = [newHead, ...prev];
-        // Eat food?
-        if (newHead.x === food.x && newHead.y === food.y) {
-          setFood(randomFood(newSnake));
-        } else {
-          newSnake.pop(); // remove tail
-        }
+        // Update food if eaten
+        if (ateFood) setFood(randomFood(newSnake));
+
         return newSnake;
       });
     };
 
-    intervalRef.current = setInterval(tick, 120);
+    intervalRef.current = window.setInterval(tick, 120);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -161,7 +162,6 @@ export const SnakeGame = () => {
     }
   }, [snake, food, gameOver]);
 
-  // Reset the game
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
     setFood(randomFood(INITIAL_SNAKE));
