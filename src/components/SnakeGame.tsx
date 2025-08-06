@@ -8,6 +8,7 @@ type Point = { x: number; y: number };
 const GRID_SIZE = 20; // cells per row/column
 const CELL_SIZE = 20; // pixel size of each cell
 const CANVAS_SIZE = GRID_SIZE * CELL_SIZE;
+
 const INITIAL_SNAKE: Point[] = [
   { x: 5, y: 5 },
   { x: 4, y: 5 },
@@ -21,7 +22,7 @@ enum Direction {
   Right,
 }
 
-/** Generate a food position that does not collide with the given snake */
+/** Return a random point that does not intersect the given snake */
 function randomFood(snake: Point[]): Point {
   let point: Point;
   do {
@@ -35,10 +36,18 @@ function randomFood(snake: Point[]): Point {
 
 export const SnakeGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const snakeRef = useRef<Point[]>(INITIAL_SNAKE); // always holds latest snake
+
   const [snake, setSnake] = useState<Point[]>(INITIAL_SNAKE);
   const [food, setFood] = useState<Point>(() => randomFood(INITIAL_SNAKE));
   const [dir, setDir] = useState<Direction>(Direction.Right);
   const [gameOver, setGameOver] = useState(false);
+
+  // keep the mutable ref in sync with state
+  useEffect(() => {
+    snakeRef.current = snake;
+  }, [snake]);
 
   // Arrow‑key handling
   useEffect(() => {
@@ -62,11 +71,11 @@ export const SnakeGame = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Main game loop
+  // Main game loop – runs only while not game over
   useEffect(() => {
     if (gameOver) return;
 
-    const interval = setInterval(() => {
+    const tick = () => {
       setSnake((prev) => {
         const head = prev[0];
         const newHead: Point = { ...head };
@@ -96,8 +105,11 @@ export const SnakeGame = () => {
           return prev;
         }
 
-        // Self collision
-        if (prev.some((seg) => seg.x === newHead.x && seg.y === newHead.y)) {
+        // Self collision (ignore the tail that will move away)
+        const willCollide = snakeRef.current.some(
+          (seg) => seg.x === newHead.x && seg.y === newHead.y,
+        );
+        if (willCollide) {
           setGameOver(true);
           return prev;
         }
@@ -111,9 +123,12 @@ export const SnakeGame = () => {
         }
         return newSnake;
       });
-    }, 120); // speed
+    };
 
-    return () => clearInterval(interval);
+    intervalRef.current = setInterval(tick, 120);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [dir, food, gameOver]);
 
   // Canvas drawing
@@ -121,7 +136,7 @@ export const SnakeGame = () => {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
 
-    // Clear background
+    // Background
     ctx.fillStyle = "hsl(var(--background))";
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
